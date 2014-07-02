@@ -60,7 +60,7 @@ public class FaceRecognition_main {
 				//Rect rect = face.getFaceCoords();
 				//Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
 				
-				imagesWithFaces.add(new Image(new Mat(output, face.getFaceCoords())));
+				imagesWithFaces.add(new Image(new Mat(output, face.getBodyPartCoords())));
 			}
 			
 		}		
@@ -82,7 +82,7 @@ public class FaceRecognition_main {
 			Mat output = img.getImage();
 			for(Eye eye : eyesManager.getParts(img))
 			{
-				Rect rect = eye.getFaceCoords();
+				Rect rect = eye.getBodyPartCoords();
 				Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));			
 			}
 			eyesWithFaces.add(new Image(output));
