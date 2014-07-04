@@ -1,4 +1,6 @@
+package main;
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -41,10 +43,10 @@ public class ShowImageTmp extends JFrame{
 			
 		}
 
-		public static void ShowImageFromImage(String imgStr, ArrayList<Image> imagesWithFaces) 
+		public static void ShowImageFromImage(String imgStr, ArrayList<Image> set) 
 		{
 			int i = 0;
-			for(Image img : imagesWithFaces)
+			for(Image img : set)
 			{
 				ShowImage(String.format("%s%s.jpg",imgStr,i++), img.getImage());
 			}

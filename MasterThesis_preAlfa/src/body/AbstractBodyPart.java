@@ -1,11 +1,12 @@
+package body;
 import org.opencv.core.Rect;
 
 
-public abstract class BodyPart {
+public abstract class AbstractBodyPart {
 
 	private Rect _partRect;
 	
-	public BodyPart(Rect faceCoords)
+	public AbstractBodyPart(Rect faceCoords)
 	{
 		_partRect = new Rect();
 		this._partRect = faceCoords;

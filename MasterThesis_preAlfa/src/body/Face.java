@@ -1,10 +1,11 @@
+package body;
 import org.opencv.core.Rect;
 
 
-public class Face extends BodyPart{	
+public class Face extends AbstractBodyPart{	
 
-	private BodyPart leftEye;
-	private BodyPart rightEye;
+	private AbstractBodyPart leftEye;
+	private AbstractBodyPart rightEye;
 	public Face(Rect faceCoords){
 		super(faceCoords);
 	};

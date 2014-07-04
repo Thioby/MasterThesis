@@ -1,9 +1,10 @@
+package body;
 import org.opencv.core.Rect;
 
 
-public class Eye extends BodyPart{
+public class Eye extends AbstractBodyPart{
 
-	BodyPart pupil;
+	AbstractBodyPart pupil;
 	public Eye(Rect eyeCoords)
 	{
 		super(eyeCoords);

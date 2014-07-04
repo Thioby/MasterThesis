@@ -1,9 +1,19 @@
+package main;
 import java.util.ArrayList;
+
+import managers.FileManager;
+import managers.ImageBodyPartManager;
+
 import org.opencv.core.*;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Point;
+
+import body.Eye;
+import body.Face;
+import detectors.AbstractDetector;
+import detectors.AbstractDetectorCreator;
+import detectors.EyesDetector;
+import detectors.EyesDetectorCreator;
+import detectors.FaceDetector;
+import detectors.FaceDetectorCreator;
 
 
 
@@ -14,48 +24,39 @@ public class FaceRecognition_main {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		String pathToPhotosFolder = "./src/images/test";
 		String pathToFaceClassifier = "./src/xmls/haarcascade_frontalface_alt.xml";
-		String pathToEyesClassifier = "./src/xmls/haarcascade_eye_tree_eyeglasses.xml";
+		String pathToEyesClassifier = "./src/xmls/haarcascade_eye.xml";
+		
 		ArrayList<String> pathes = FileManager.findFiles(pathToPhotosFolder, ".jpg");
 		
-		FaceDetector faceDetector = new FaceDetector();
-		if(faceDetector.loadClassifier(pathToFaceClassifier))
-			System.out.println("Classifier: " + pathToFaceClassifier+ " loaded successfully");
-		else
-		{
-			System.out.println(String.format("Cannot load classifier from: %s, bye", pathToFaceClassifier));
-			System.exit(-1);
-		}
 		
-		EyesDetector eyesDetecor = new EyesDetector();
-		if(eyesDetecor.loadClassifier(pathToEyesClassifier))
-			System.out.println("Classifier: " + pathToEyesClassifier+ " loaded successfully");
-		else
-		{
-			System.out.println(String.format("Cannot load classifier from: %s, bye", pathToEyesClassifier));
-			System.exit(-1);
-		}
+		AbstractDetectorCreator faceDetectorCreator = new FaceDetectorCreator();	
+		AbstractDetectorCreator eyesDetecorCreator = new EyesDetectorCreator();
+	
+		AbstractDetector eyesDetector = eyesDetecorCreator.create(pathToEyesClassifier);
+		AbstractDetector faceDetector = faceDetectorCreator.create(pathToFaceClassifier);
 		
-		ImageBodyPartManager<Face> faceManager = new ImageBodyPartManager<Face>();
+		ImageBodyPartManager<Face> imageFaceManager = new ImageBodyPartManager<Face>();
 		
 		for(String pathToFacePhoto : pathes)
 		{
 			Image image = new Image(pathToFacePhoto);		
 			if(image.loadImage())
+			{
 				System.out.println("Image: " + pathToFacePhoto + " loaded successfully");
+				faceDetector.setImage(image);
+				imageFaceManager.addImage(image, faceDetector.detec()); //mozna zrobiæ ze zapisuje tylko z wykrytymi twarzami
+			}
 			else
 			{
-				System.out.println(String.format("Cannot load image from: %s, bye", pathToFacePhoto));
-				System.exit(-1);
-			}
-			faceDetector.setImage(image);
-			faceManager.addImage(image, faceDetector.detec()); //mozna zrobiæ ze zapisuje tylko z wykrytymi twarzami
+				System.out.println(String.format("Cannot load image from: %s, next", pathToFacePhoto));				
+			}			
 		}				
 		
 		ArrayList<Image> imagesWithFaces = new ArrayList<>();
-		for(Image image : faceManager.getImages())
+		for(Image image : imageFaceManager.getImages())
 		{
 			Mat output = image.getImage();			
-			for(Face face : faceManager.getParts(image))
+			for(Face face : imageFaceManager.getBodyParts(image))
 			{
 				//Rect rect = face.getFaceCoords();
 				//Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
@@ -73,14 +74,14 @@ public class FaceRecognition_main {
 		for(Image img : imagesWithFaces)
 		{	
 			
-			eyesDetecor.setImage(img);
-			eyesManager.addImage(img, eyesDetecor.detec());
+			eyesDetector.setImage(img);
+			eyesManager.addImage(img, eyesDetector.detec());
 		}
 		
 		for(Image img : eyesManager.getImages())
 		{
 			Mat output = img.getImage();
-			for(Eye eye : eyesManager.getParts(img))
+			for(Eye eye : eyesManager.getBodyParts(img))
 			{
 				Rect rect = eye.getBodyPartCoords();
 				Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));			
