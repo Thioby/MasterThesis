@@ -22,7 +22,7 @@ public class ImageBodyPartManager <T>{
 	{
 		imageWithBodyPart.put(img,_bodyParts);
 	}
-	public List<T> getBodyParts(Image img)
+	public ArrayList<T> getBodyParts(Image img)
 	{
 		return imageWithBodyPart.get(img);
 	}
@@ -30,5 +30,26 @@ public class ImageBodyPartManager <T>{
 	public Set<Image> getImages()
 	{
 		return imageWithBodyPart.keySet();
+	}
+	public void addBodyPartsToImage(Image img, ArrayList<T> _bodyParts)
+	{
+		ArrayList<T> tmpList = getBodyParts(img);
+		if(!_bodyParts.isEmpty())
+		{
+			if((tmpList != null))
+			{
+				tmpList.addAll(_bodyParts);
+				imageWithBodyPart.remove(img);
+				imageWithBodyPart.put(img, tmpList);
+			}
+			else
+			{
+				addImage(img, _bodyParts);
+			}
+		}else
+		{
+			return;
+		}
+		
 	}
 }

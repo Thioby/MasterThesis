@@ -18,4 +18,10 @@ public abstract class AbstractDetectorCreator {
 		}
 		return detector;
 	}
+
+	public AbstractDetector create() {
+		
+		detector = createDetector();
+		return detector;
+	}
 }

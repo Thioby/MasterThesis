@@ -1,6 +1,7 @@
 package main;
 import org.opencv.core.Mat;
 import org.opencv.highgui.*;
+import org.opencv.imgproc.Imgproc;
 
 
 public class Image 
@@ -20,8 +21,9 @@ public class Image
 	public boolean loadImage() 
 	{
 		try
-		{			
-			image = Highgui.imread(_path);
+		{	
+			image = new Mat();
+			Imgproc.cvtColor( Highgui.imread(_path), image, Imgproc.COLOR_BGR2GRAY); //load and converse to greyScale
 			
 		}catch(Exception e)
 		{
@@ -34,8 +36,5 @@ public class Image
 	{
 		return image;
 	}
-	
-
-	
 	
 }

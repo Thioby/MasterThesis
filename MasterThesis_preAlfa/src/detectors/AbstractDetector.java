@@ -3,6 +3,7 @@ package detectors;
 import java.util.ArrayList;
 
 import main.Image;
+import main.ShowImageTmp;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -20,9 +21,7 @@ public abstract class AbstractDetector {
 	
 	
 	
-	public AbstractDetector() {
-		// TODO Auto-generated constructor stub
-	}
+	public AbstractDetector() {	}
 
 
 	public boolean loadClassifier(String path)
@@ -44,7 +43,7 @@ public abstract class AbstractDetector {
 	
 	public void setImage(Mat img)
 	{
-		this._image = img;
+		this._image = img;		
 	}
 	
 	public ArrayList detec()
@@ -54,7 +53,8 @@ public abstract class AbstractDetector {
 		
 		if(_image.channels()>1)
 			Imgproc.cvtColor(_image, _imgGrey, Imgproc.COLOR_BGR2GRAY);
-		else _imgGrey = _image;		
+		else 
+			_imgGrey = _image;			
 		return null;
 	}
 

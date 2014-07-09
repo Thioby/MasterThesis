@@ -20,7 +20,7 @@ public class EyesDetector extends AbstractDetector{
 	{
 		super.detec();
 		_detected = new ArrayList<Eye>();
-		_detector.detectMultiScale(_imgGrey, _detections, 1.1, 2, Objdetect.CASCADE_SCALE_IMAGE, new Size(30,30), new Size(10000,30000));		
+		_detector.detectMultiScale(_imgGrey, _detections, 1.2, 5, Objdetect.CASCADE_SCALE_IMAGE, new Size(40,40), new Size(10000,30000));		
 		for(Rect rec : _detections.toArray())
 			_detected.add(new Eye(rec));
 		return _detected;

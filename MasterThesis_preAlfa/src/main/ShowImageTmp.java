@@ -13,6 +13,11 @@ import org.opencv.highgui.Highgui;
 public class ShowImageTmp extends JFrame{
 
 		  
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 		public static void ShowImage(String imgStr, Mat m)
 		{
 			Highgui.imwrite(imgStr,m);
@@ -41,6 +46,11 @@ public class ShowImageTmp extends JFrame{
 				ShowImage(String.format("%s%s.jpg",imgStr,i++), img);
 			}
 			
+		}
+		
+		public static void ShowImage(String imgStr, Image img) 
+		{
+			ShowImage(imgStr, img.getImage());
 		}
 
 		public static void ShowImageFromImage(String imgStr, ArrayList<Image> set) 

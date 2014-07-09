@@ -4,26 +4,32 @@ import java.util.ArrayList;
 import managers.FileManager;
 import managers.ImageBodyPartManager;
 
+
+
 import org.opencv.core.*;
 
+import body.AbstractBodyPart;
 import body.Eye;
 import body.Face;
+import body.Pupil;
 import detectors.AbstractDetector;
 import detectors.AbstractDetectorCreator;
 import detectors.EyesDetector;
 import detectors.EyesDetectorCreator;
 import detectors.FaceDetector;
 import detectors.FaceDetectorCreator;
+import detectors.PupilCornerDetectorCreator;
 
 
 
 public class FaceRecognition_main {
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 	
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		String pathToPhotosFolder = "./src/images/test";
-		String pathToFaceClassifier = "./src/xmls/haarcascade_frontalface_alt.xml";
+		String pathToPhotosFolder = "./src/images/skype";
+		String pathToFaceClassifier = "./src/xmls/haarcascade_frontalface_default.xml";
 		String pathToEyesClassifier = "./src/xmls/haarcascade_eye.xml";
 		
 		ArrayList<String> pathes = FileManager.findFiles(pathToPhotosFolder, ".jpg");
@@ -31,20 +37,38 @@ public class FaceRecognition_main {
 		
 		AbstractDetectorCreator faceDetectorCreator = new FaceDetectorCreator();	
 		AbstractDetectorCreator eyesDetecorCreator = new EyesDetectorCreator();
+		AbstractDetectorCreator	pupilCornerDetectorCreator = new PupilCornerDetectorCreator();
 	
 		AbstractDetector eyesDetector = eyesDetecorCreator.create(pathToEyesClassifier);
 		AbstractDetector faceDetector = faceDetectorCreator.create(pathToFaceClassifier);
+		AbstractDetector pupilCornerDetector = pupilCornerDetectorCreator.create();
 		
 		ImageBodyPartManager<Face> imageFaceManager = new ImageBodyPartManager<Face>();
 		
-		for(String pathToFacePhoto : pathes)
+		ArrayList<Image> imagesWithFaces = new ArrayList<>();
+		
+		ArrayList<Image> imagesWithEyes = new ArrayList<>();
+		
+		for(String pathToFacePhoto : pathes) //dla kazdego zdjecia, przeszukujemy obrazek i znajdujemy twarze
 		{
 			Image image = new Image(pathToFacePhoto);		
 			if(image.loadImage())
 			{
+								
 				System.out.println("Image: " + pathToFacePhoto + " loaded successfully");
 				faceDetector.setImage(image);
-				imageFaceManager.addImage(image, faceDetector.detec()); //mozna zrobiæ ze zapisuje tylko z wykrytymi twarzami
+				ArrayList<Face> facesInImage = faceDetector.detec();
+				Mat output = image.getImage();
+				for(Face face : facesInImage)
+				{
+					eyesDetector.setImage(new Mat(output,face.getBodyPartCoords()));	
+					face.addEyes( eyesDetector.detec());			//do usuniecia ten warunek	
+					imagesWithEyes.add(new Image(new Mat(output,face.getBodyPartCoords())));
+					
+				}
+				imageFaceManager.addBodyPartsToImage(image, facesInImage);
+				
+				
 			}
 			else
 			{
@@ -52,22 +76,25 @@ public class FaceRecognition_main {
 			}			
 		}				
 		
-		ArrayList<Image> imagesWithFaces = new ArrayList<>();
-		for(Image image : imageFaceManager.getImages())
+		
+		/*
+		 * wycinanie twarzy z obrazków - zbêdne, mozna operowaæ tylko na koordynatach, mniej pamieci zajête
+		 *
+		for(Image image : imageFaceManager.getImages()) //dla kazdegho obrazka
 		{
 			Mat output = image.getImage();			
-			for(Face face : imageFaceManager.getBodyParts(image))
+			for(Face face : imageFaceManager.getBodyParts(image)) //wyciagnij twarze
 			{
-				//Rect rect = face.getFaceCoords();
-				//Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+				Rect rect = face.getBodyPartCoords();
+				Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
 				
-				imagesWithFaces.add(new Image(new Mat(output, face.getBodyPartCoords())));
+				//imagesWithFaces.add(new Image(new Mat(output, face.getBodyPartCoords()))); //to wycina mniejszy obrazek z wiêkszego
 			}
 			
 		}		
-		//ShowImageTmp.ShowImageFromImage("d:\\output/", imagesWithFaces);
+		ShowImageTmp.ShowImageFromImage("d:\\output/", imagesWithFaces);*/
 		
-		ImageBodyPartManager<Eye> eyesManager = new ImageBodyPartManager<>();
+		/*ImageBodyPartManager<Eye> eyesManager = new ImageBodyPartManager<>();
 		
 		ArrayList<Image> eyesWithFaces = new ArrayList<>();
 		
@@ -87,9 +114,54 @@ public class FaceRecognition_main {
 				Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));			
 			}
 			eyesWithFaces.add(new Image(output));
+		}*/
+		
+		for(Image img : imageFaceManager.getImages())
+		{
+			Mat output = new Mat();
+			for(Face face : imageFaceManager.getBodyParts(img))
+			{
+				for(Eye eye : face.getEyes())
+				{
+					//here detect pupil,
+					output = new Mat(img.getImage(),eye.getBodyPartCoords());
+					//pupilCornerDetector.setImage(new Mat(output,eye.getBodyPartCoords()));				
+					//ArrayList<Pupil> pupilList = pupilCornerDetector.detec();				
+					//for(Pupil pupil : pupilList)
+					{
+						//eye.setPupil(pupil);
+						//Rect rect = eye.getBodyPartCoords();
+						//Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+					}
+					
+					imagesWithFaces.add(new Image(output));
+					
+				}
+			}
+			
 		}
 		
+		
+		/*for(Image img : imagesWithEyes)
+		{
+			Mat output = img.getImage();
+		
+			eyesDetector.setImage(img);			
+			ArrayList<Eye> eyes = eyesDetector.detec();
+			for(Eye eye : eyes)
+			{	
+				Rect rect = eye.getBodyPartCoords();
+				Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));				
+			}
+			imagesWithFaces.add(new Image(output));
+		}*/
+		
+		
+		
 		ShowImageTmp.ShowImageFromImage("d:\\outputEyes/", imagesWithFaces);
+		
+		
+		
 		
 	}
 
@@ -126,3 +198,9 @@ faceDetector.detectMultiScale(image, faceDetections);
 ShowImageTmp show =  new ShowImageTmp();
 show.ShowImage("d:\\1.jpg");
 System.out.println(String.format("Detected %s faces" + "Height: " + image.height() + " Width: " + image.width(), faceDetections.toArray().length));*/
+
+
+/*
+Wa¿ne:
+	nie wczytywac na czarno bia³o tylko na kolorowo!
+*/
