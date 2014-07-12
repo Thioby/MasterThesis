@@ -32,7 +32,7 @@ public class FaceRecognition_main {
 		String pathToFaceClassifier = "./src/xmls/haarcascade_frontalface_default.xml";
 		String pathToEyesClassifier = "./src/xmls/haarcascade_eye.xml";
 		
-		ArrayList<String> pathes = FileManager.findFiles(pathToPhotosFolder, ".jpg");
+		ArrayList<String> pathes = FileManager.findFiles(pathToPhotosFolder, ".png");
 		
 		
 		AbstractDetectorCreator faceDetectorCreator = new FaceDetectorCreator();	
@@ -61,9 +61,9 @@ public class FaceRecognition_main {
 				Mat output = image.getImage();
 				for(Face face : facesInImage)
 				{
-					eyesDetector.setImage(new Mat(output,face.getBodyPartCoords()));	
+					eyesDetector.setImage(output.submat(face.getBodyPartCoords()));	
 					face.addEyes( eyesDetector.detec());			//do usuniecia ten warunek	
-					imagesWithEyes.add(new Image(new Mat(output,face.getBodyPartCoords())));
+				
 					
 				}
 				imageFaceManager.addBodyPartsToImage(image, facesInImage);
@@ -118,27 +118,26 @@ public class FaceRecognition_main {
 		
 		for(Image img : imageFaceManager.getImages())
 		{
-			Mat output = new Mat();
+			Mat output = img.getImage();
 			for(Face face : imageFaceManager.getBodyParts(img))
 			{
 				for(Eye eye : face.getEyes())
 				{
 					//here detect pupil,
-					output = new Mat(img.getImage(),eye.getBodyPartCoords());
-					//pupilCornerDetector.setImage(new Mat(output,eye.getBodyPartCoords()));				
-					//ArrayList<Pupil> pupilList = pupilCornerDetector.detec();				
-					//for(Pupil pupil : pupilList)
-					{
-						//eye.setPupil(pupil);
-						//Rect rect = eye.getBodyPartCoords();
-						//Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
-					}
 					
-					imagesWithFaces.add(new Image(output));
+					pupilCornerDetector.setImage(img.getImage().submat(eye.getBodyPartCoords()));				
+					ArrayList<Pupil> pupilList = pupilCornerDetector.detec();				
+					for(Pupil pupil : pupilList)
+					{
+						eye.setPupil(pupil);
+						Rect rect = eye.getPupil().getBodyPartCoords();
+						Core.rectangle(output, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+					}					
+					
 					
 				}
 			}
-			
+			imagesWithFaces.add(new Image(output));
 		}
 		
 		
@@ -157,8 +156,8 @@ public class FaceRecognition_main {
 		}*/
 		
 		
-		
-		ShowImageTmp.ShowImageFromImage("d:\\outputEyes/", imagesWithFaces);
+		ShowImageTmp shower = new ShowImageTmp();
+		shower.ShowImageFromImage("d:\\outputEyes/", imagesWithFaces);
 		
 		
 		

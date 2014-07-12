@@ -22,8 +22,8 @@ public class Image
 	{
 		try
 		{	
-			image = new Mat();
-			Imgproc.cvtColor( Highgui.imread(_path), image, Imgproc.COLOR_BGR2GRAY); //load and converse to greyScale
+			image = Highgui.imread(_path);
+			//Imgproc.cvtColor( Highgui.imread(_path), image, Imgproc.COLOR_BGR2GRAY); //load and converse to greyScale
 			
 		}catch(Exception e)
 		{

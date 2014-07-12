@@ -12,8 +12,8 @@ import org.opencv.objdetect.CascadeClassifier;
 
 public abstract class AbstractDetector {
 	
-	protected Mat _image;
-	protected Mat _imgGrey;
+	protected Mat _image = null;
+	protected Mat _imgGrey = null;
 	protected CascadeClassifier _detector;
 	protected MatOfRect _detections;
 	protected ArrayList _detected;
@@ -57,5 +57,7 @@ public abstract class AbstractDetector {
 			_imgGrey = _image;			
 		return null;
 	}
+	
+	
 
 }
